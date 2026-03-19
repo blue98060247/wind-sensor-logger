@@ -1,0 +1,21 @@
+{
+  "name": "wind-sensor-logger",
+  "version": "1.0.0",
+  "description": "Wind sensor data logger via Advantech ADAM-4017/18 Modbus RTU",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop wind-sensor",
+    "pm2:restart": "pm2 restart wind-sensor",
+    "pm2:logs": "pm2 logs wind-sensor"
+  },
+  "dependencies": {
+    "modbus-serial": "^8.0.19",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

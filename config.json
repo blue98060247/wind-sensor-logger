@@ -1,0 +1,42 @@
+{
+  "adam": {
+    "comPort": "COM4",
+    "baudrate": 9600,
+    "deviceId": 1,
+    "timeout": 3000
+  },
+  "scan": {
+    "scanRate": 1,
+    "saveRate": 10
+  },
+  "filePath": "./data",
+  "channels": {
+    "ch0": {
+      "name": "windSpeed",
+      "analog": "V",
+      "initial": 0.4,
+      "factor": 28.125,
+      "offset": 0.0
+    },
+    "ch1": {
+      "name": "windDirection",
+      "analog": "V",
+      "initial": 0.4,
+      "factor": 225,
+      "offset": 0.0
+    }
+  },
+  "slave": {
+    "comPort": "COM2",
+    "baudrate": 9600,
+    "slaveId": 1,
+    "parity": "none",
+    "stopBits": 1,
+    "dataBits": 8
+  },
+  "registers": {
+    "windSpeed": 0,
+    "windDirection": 1,
+    "windLevel": 2
+  }
+}
