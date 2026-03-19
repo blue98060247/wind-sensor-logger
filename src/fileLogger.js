@@ -45,6 +45,7 @@ class FileLogger {
 
     if (secondsOfDay % this._saveRate !== 0) return;
 
+    const hasData = this._state.speedSamples.length > 0;
     const maxSpeed = this._max(this._state.speedSamples);
     const avgLevel = this._average(this._state.levelSamples);
 
@@ -57,13 +58,14 @@ class FileLogger {
     const filePath = path.join(this._filePath, `${dateStr}.dat`);
 
     // CSV 欄位: 時間戳, CH0原始值, CH1原始值, 風速, 風向, 風力等級
+    // 若無有效數據（連線失敗），數值欄位全部寫 NaN
     const row = [
       timestamp,
-      this._state.rawCh0,
-      this._state.rawCh1,
-      maxSpeed.toFixed(4),
-      this._state.windDirection.toFixed(4),
-      Math.round(avgLevel),
+      hasData ? this._state.rawCh0 : 'NaN',
+      hasData ? this._state.rawCh1 : 'NaN',
+      hasData ? maxSpeed.toFixed(4) : 'NaN',
+      hasData ? this._state.windDirection.toFixed(4) : 'NaN',
+      hasData ? Math.round(avgLevel) : 'NaN',
     ].join(',') + '\n';
 
     try {
