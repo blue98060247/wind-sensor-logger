@@ -34,9 +34,8 @@ const state = {
   windSpeed: 0,
   windDirection: 0,
   windLevel: 0,
-  // 掃描視窗內的累積採樣（用於存檔前取平均）
+  // 掃描視窗內的累積採樣（風速取最大、風力等級取平均；風向用瞬間值）
   speedSamples: [],
-  directionSamples: [],
   levelSamples: [],
 };
 
@@ -58,9 +57,8 @@ async function pollAdam() {
     state.windDirection = calibrate(ch1, config.channels.ch1);
     state.windLevel     = getWindLevel(state.windSpeed);
 
-    // 累積採樣（存檔時取平均）
+    // 累積採樣（風速取最大、風力等級取平均；風向直接用 state.windDirection 瞬間值）
     state.speedSamples.push(state.windSpeed);
-    state.directionSamples.push(state.windDirection);
     state.levelSamples.push(state.windLevel);
 
     // 更新 Modbus 暫存器（值 × 10）

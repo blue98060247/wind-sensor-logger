@@ -10,6 +10,8 @@
     "saveRate": 10
   },
   "filePath": "./data",
+  "outputPath": "./output",
+  "outputFilename": "wind_history",
   "channels": {
     "ch0": {
       "name": "windSpeed",
