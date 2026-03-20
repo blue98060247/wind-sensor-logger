@@ -31,6 +31,9 @@ class FileLogger {
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
       }
+      if (!fs.existsSync(this._outputFile)) {
+        fs.writeFileSync(this._outputFile, 'TIMESTAMP,RawCH0,RawCH1,WindSpeed,WindDirection,WindLevel\n', 'utf8');
+      }
     }
 
     this._lastCleanupDate = null; // 記錄上次清理的日期字串 (yyyy-MM-dd)
@@ -118,7 +121,7 @@ class FileLogger {
 
     const kept = lines.filter(line => {
       const t = this._parseTimestamp(line);
-      return t && t >= cutoff;
+      return !t || t >= cutoff; // 無法解析時間戳的行（如 header）一律保留
     });
 
     if (kept.length === lines.length) return; // 無需清理
