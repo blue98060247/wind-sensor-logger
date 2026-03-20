@@ -32,7 +32,7 @@ Node.js + PM2 應用程式，從 Advantech ADAM-4017/18 透過 Modbus RTU 讀取
 1. **ADAM 讀取**（`adamReader.js`）：以 `modbus-serial` 作為 Modbus RTU Master，對 ADAM-4017/18 發 FC04（Read Input Registers），讀取 CH0（風速）與 CH1（風向）原始整數值。
 2. **校正**（`calibration.js`）：先依單位模式（V/mV/mA）將整數正規化為物理量，再套用 `value = (raw - initial) * factor + offset`。
 3. **風力等級**（`windLevel.js`）：依 18 個蒲福風級門檻（m/s），將風速轉為 0–18 整數等級。
-4. **寫檔**（`fileLogger.js`）：`timer2` 每秒呼叫 `tick()`，當 `(當日秒數 % saveRate === 0)` 時，將掃描視窗內的平均值以 CSV 寫入 `<filePath>/<yyyy-MM-dd>.dat`。欄位：時間戳、rawCh0、rawCh1、風速、風向、風力等級。
+4. **寫檔**（`fileLogger.js`）：`timer2` 每秒呼叫 `tick()`，當 `(當日秒數 % saveRate === 0)` 時，將掃描視窗內的**最大風速**、**平均風力等級**、**瞬間風向**以 CSV 寫入 `<filePath>/<yyyy-MM-dd>.dat`。欄位：時間戳、rawCh0、rawCh1、風速、風向、風力等級。若 `outputPath`/`outputFilename` 有設定，也會同步追加至累積輸出檔，並於每日首次寫檔時清除 7 天前的舊資料。
 5. **Modbus Slave**（`modbusSlave.js`）：`timer3` 每 10 秒呼叫 `reinit()`，若 slave 斷線則重新啟動。暫存器值 = 工程值 × 10（整數）。
 
 ### 計時器（均在 `src/index.js` 內以 `setInterval` 實作）
@@ -48,7 +48,7 @@ Node.js + PM2 應用程式，從 Advantech ADAM-4017/18 透過 Modbus RTU 讀取
 `state` 由 `index.js` 建立並傳入 `FileLogger` 與 `ModbusSlave`：
 - `rawCh0`, `rawCh1`：最新一次的原始暫存器值
 - `windSpeed`, `windDirection`, `windLevel`：最新校正後的工程值
-- `speedSamples[]`, `directionSamples[]`, `levelSamples[]`：自上次存檔以來的採樣緩衝，寫檔後清空
+- `speedSamples[]`, `levelSamples[]`：自上次存檔以來的採樣緩衝，寫檔後清空（風向直接取 `state.windDirection` 瞬間值，不緩衝）
 
 ### 設定（`config.json`）
 
@@ -58,8 +58,9 @@ Node.js + PM2 應用程式，從 Advantech ADAM-4017/18 透過 Modbus RTU 讀取
 | `scan` | `scanRate`, `saveRate` | 採樣頻率（秒）、存檔頻率（秒，需能整除當日秒數） |
 | `filePath` | — | `.dat` 檔輸出目錄 |
 | `channels.ch0/ch1` | `analog`, `initial`, `factor`, `offset` | 各通道單位與校正參數 |
-| `slave` | `comPort`, `baudrate`, `slaveId`, `parity`, `stopBits` | Modbus Slave 串列埠 |
+| `slave` | `comPort`, `baudrate`, `slaveId`, `parity`, `stopBits`, `dataBits` | Modbus Slave 串列埠 |
 | `registers` | `windSpeed`, `windDirection`, `windLevel` | Slave Input Register 位址 |
+| `outputPath`, `outputFilename` | — | 累積輸出檔目錄與檔名（不隔日重置，選填） |
 
 設定檔路徑可透過環境變數 `CONFIG_PATH` 覆蓋，預設為 `./config.json`。
 

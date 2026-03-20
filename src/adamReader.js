@@ -18,6 +18,14 @@ class AdamReader {
    * 建立 RTU 連線
    */
   async connect() {
+    // 關閉舊的 client（避免 "Port is already open" 錯誤）
+    try {
+      if (this._client.isOpen) {
+        await new Promise((resolve) => this._client.close(resolve));
+      }
+    } catch (_) {}
+    this._client = new ModbusRTU();
+
     try {
       await this._client.connectRTUBuffered(this._cfg.comPort, {
         baudRate: this._cfg.baudrate,
